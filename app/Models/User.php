@@ -18,9 +18,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+       'name',
         'email',
         'password',
+        'github_id',
+        'github_token',
+        'github_refresh_token',
+        'number',
+        'role',
     ];
 
     /**
@@ -44,5 +49,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function image(){
+        return $this->morphOne(Image::class,'imageable');
     }
 }
