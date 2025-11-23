@@ -25,6 +25,7 @@ class AuthController extends Controller
 
 
         if($result){
+            $request->session()->regenerate();
             return response()->json(['message' => 'ok'],200);
         }
 
@@ -44,14 +45,23 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user,$validated['remember']);
-
+        $request->session()->regenerate();
         return response()->json(['message' => 'ok'],200);
     }
 
     public function logout(Request $request){
-        $request->session()->regenerate();
-        $request->session()->invalidate();
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return response()->json(['message' => 'logout successfully!'],200);
+    }
+    public function delete(Request $request){
+        $user = $request->user();
+        $user->
+        $user->delete();
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'Account deleted successfully!'],200);
     }
 }
