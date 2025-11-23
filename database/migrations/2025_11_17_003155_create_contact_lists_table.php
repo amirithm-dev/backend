@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('contact_lists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnUpdate();
+            $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('label');
             $table->string('url');
             $table->unsignedTinyInteger('order')->default(0);

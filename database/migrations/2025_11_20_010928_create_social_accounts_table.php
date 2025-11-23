@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('social_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('link');
-            $table->string('status');
-            $table->boolean('web_view')->default(true);
+            $table->string('provider_name');
+            $table->string('provider_id');
+            $table->string('provider_token')->nullable();
+            $table->string('provider_refresh_token')->nullable();
             $table->timestamps();
+            $table->unique(['user_id', 'provider_name']);
+            $table->unique(['provider_name', 'provider_id']);
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('social_accounts');
     }
 };

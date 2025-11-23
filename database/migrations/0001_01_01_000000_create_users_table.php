@@ -13,15 +13,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('github_id')->nullable()->unique();
-            $table->text('github_token')->nullable();
-            $table->text('github_refresh_token')->nullable();
             $table->string('name')->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('number')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('role')->default('guest');
+            $table->boolean('verified')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
