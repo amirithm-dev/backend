@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rules\Password as RulesPassword;
+use Illuminate\Auth\Events\Verified;
 
 class AuthController extends Controller
 {
@@ -32,7 +33,6 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'unable to login with this credentials'],401);
     }
-
     public function register(Request $request){
         $validated = $request->validate([
             'email' => 'email|required|unique:users,email',
@@ -50,14 +50,13 @@ class AuthController extends Controller
         event(new Registered($user));
         return response()->json(['message' => 'ok'],200);
     }
-
     public function logout(Request $request){
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return response()->json(['message' => 'logout successfully!'],200);
     }
-    public function delete(Request $request){
+    public function deleteAccount(Request $request){
         $user = $request->user();
         $user->
         $user->delete();
@@ -65,5 +64,37 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return response()->json(['message' => 'Account deleted successfully!'],200);
+    }
+
+
+    public function sendVerificationEmail(Request $request){
+        if($request->user()->hasVerifiedEmail()){
+            return response()->json(['message' => 'Email already verified.'], 400);
+        }
+        $request->user()->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification link sent!']);
+    }
+    public function verifyEmail(Request $request){
+        $user = User::findOrFail($request->id);
+
+        if($user->hasVerifiedEmail()){
+            return view('email_verified',[
+                'message' => 'Email address already verified.',
+                'verified' => true,
+            ]);
+        }
+        if(! hash_equals($request->hash,sha1($user->getEmailForVerification()))){
+            return view('email_verified',[
+                'message' => 'Unable to verify email address.',
+                'verified' => false,
+            ]);
+        }
+
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+        return view('email_verified',[
+            'message' => 'Email address has been verified.',
+            'verified' => true,
+        ]);
     }
 }
