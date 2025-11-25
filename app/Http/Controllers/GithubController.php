@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SocialAccount;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -51,14 +52,12 @@ class GithubController extends Controller
                     'provider_token' => $githubToken,
                     'provider_refresh_token' => $githubRefreshToken,
                 ]);
+                event(new Registered($user));
             }
 
         }
 
-        $user->image()->updateOrCreate([
-            'imageable_type' => User::class,
-            'imageable_id' => $user->id,
-        ],[
+        $user->image()->updateOrCreate([],[
             'path' => $githubAvatar,
             'alt' => $githubName
         ]);

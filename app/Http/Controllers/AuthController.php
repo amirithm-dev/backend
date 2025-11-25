@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -46,6 +47,7 @@ class AuthController extends Controller
 
         Auth::login($user,$validated['remember']);
         $request->session()->regenerate();
+        event(new Registered($user));
         return response()->json(['message' => 'ok'],200);
     }
 
