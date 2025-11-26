@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class SocialAccount extends Model
 {
     protected $fillable = [
+        'nickname',
         'user_id',
         'provider_name',
         'provider_id',
         'provider_token',
         'provider_refresh_token',
+        'url'
     ];
 
     public function user(){

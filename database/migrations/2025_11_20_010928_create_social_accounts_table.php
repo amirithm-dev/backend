@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('social_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('nickname')->nullable();
             $table->string('provider_name');
             $table->string('provider_id');
             $table->string('provider_token')->nullable();
             $table->string('provider_refresh_token')->nullable();
+            $table->string('url')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'provider_name']);
             $table->unique(['provider_name', 'provider_id']);
