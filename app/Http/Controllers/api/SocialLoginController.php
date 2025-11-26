@@ -1,18 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Socialite;
 
-use function Pest\Laravel\session;
-
-class GithubController extends Controller
+class SocialLoginController extends Controller
 {
     public function redirect(Request $request){
         return Socialite::driver('github')->redirect();
@@ -26,15 +24,18 @@ class GithubController extends Controller
         $githubEmail = $githubUser->getEmail();
         $githubName = $githubUser->getName();
         $githubAvatar = $githubUser->getAvatar();
+        $githubUrl = $githubUser->user['html_url'] ?? '';
 
         $user = User::where('email',$githubEmail)->first();
         if($user){
             $user->socialAccounts()->updateOrCreate(
                 ['provider_name' => 'github'],
                 [
+                    'nickname' => $githubName,
                     'provider_id' => $githubId,
                     'provider_token' => $githubToken,
                     'provider_refresh_token' => $githubRefreshToken,
+                    'url' => $githubUrl,
                 ]
             );
         }else{
@@ -47,10 +48,12 @@ class GithubController extends Controller
                     'name' => $githubName,
                 ]);
                 $user->socialAccounts()->create([
+                    'nickname' => $githubName,
                     'provider_name' => 'github',
                     'provider_id' => $githubId,
                     'provider_token' => $githubToken,
                     'provider_refresh_token' => $githubRefreshToken,
+                    'url' => $githubUrl,
                 ]);
                 event(new Registered($user));
             }

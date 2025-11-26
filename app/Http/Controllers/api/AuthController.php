@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class AuthController extends Controller
             'remember' => 'boolean|required'
         ]);
 
-        $user = User::firstOrCreate([
+        $user = User::create([
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
