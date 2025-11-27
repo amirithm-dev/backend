@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class GuestOnly
+class AuthenticatedOnly
 {
     /**
      * Handle an incoming request.
@@ -16,10 +16,9 @@ class GuestOnly
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::guard('sanctum')->check()){
-            return response()->json(['message' => 'Authenticated user.'],409);
+        if(!Auth::guard('sanctum')->check()){
+            return response()->json(['message' => 'unauthenticated'],401);
         }
-
         return $next($request);
     }
 }

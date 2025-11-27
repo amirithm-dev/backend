@@ -14,6 +14,7 @@ use Illuminate\Auth\Events\Verified;
 
 class AuthController extends Controller
 {
+    // login register logout delete-account
     public function login(Request $request){
         $validated = $request->validate([
             'email' => 'email|required',
@@ -67,7 +68,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Account deleted successfully!'],200);
     }
 
-
+    // email verification
     public function sendVerificationEmail(Request $request){
         if($request->user()->hasVerifiedEmail()){
             return response()->json(['message' => 'Email already verified.'], 400);
@@ -98,4 +99,6 @@ class AuthController extends Controller
             'verified' => true,
         ]);
     }
+
+    // password reset
 }
