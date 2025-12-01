@@ -28,13 +28,14 @@ class UserController extends Controller
 
     public function update(Request $request){
         $validated = $request->validate([
-            'avatar' => 'image|max:2048',
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'number'=> 'min_digits:11|max_digits:11|numeric',
+            'avatar' => 'nullable|image|max:2048',
+            'name' => 'nullable|string',
+            'email' => 'nullable|email|max:255',
+            'number'=> 'nullable|min_digits:11|max_digits:11|numeric',
         ]);
-
+        $credentials = array_filter($validated,fn($value) => !is_null($value));
         $user = $request->user();
+
         // save avatar
         if($request->hasFile('avatar')){
             $imageModel = $user->image;
@@ -56,14 +57,8 @@ class UserController extends Controller
             $imageModel->alt = $avatarName;
             $imageModel->save();
         }
-        // save information
-        if($user->email !== $validated['email']){
-            $user->email_verified_at = null;
-        }
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->number = $validated['number'];
-        $user->save();
+        // update information
+        $user->update($credentials);
 
         return response()->json(['message' => 'ok'],200);
     }
