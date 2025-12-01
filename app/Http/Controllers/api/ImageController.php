@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
-    public function avatar(Request $request){
-        $avatar = $request->user()->image()->get(['path','alt']);
-        return response()->json($avatar);
-    }
+
 }

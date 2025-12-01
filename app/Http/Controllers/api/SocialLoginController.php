@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -8,7 +8,12 @@ use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Socialite;
+use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Drivers\Gd\Encoders\WebpEncoder;
+use Intervention\Image\ImageManager;
 
 class SocialLoginController extends Controller
 {
@@ -23,7 +28,7 @@ class SocialLoginController extends Controller
         $githubRefreshToken = $githubUser->refreshToken;
         $githubEmail = $githubUser->getEmail();
         $githubName = $githubUser->getName();
-        $githubAvatar = $githubUser->getAvatar();
+        $githubAvatarUrl = $githubUser->getAvatar();
         $githubUrl = $githubUser->user['html_url'] ?? '';
 
         $user = User::where('email',$githubEmail)->first();
@@ -59,9 +64,19 @@ class SocialLoginController extends Controller
             }
 
         }
-
+        if($user->image && Storage::disk('public')->exists($user->image->path)){
+            Storage::disk('public')->delete($user->image->path);
+        }
+        $githubAvatar = file_get_contents($githubAvatarUrl);
+        $avatarName = Str::random(16) . '-' . time() . '.webp';
+        $manager = new ImageManager(new Driver);
+        $image = $manager->read($githubAvatar);
+        $image->resize(300,300)
+        ->toWebp();
+        $encodedImage = $image->encode(new WebpEncoder(100));
+        Storage::disk('public')->put("avatars/{$avatarName}",$encodedImage);
         $user->image()->updateOrCreate([],[
-            'path' => $githubAvatar,
+            'path' => "avatars/{$avatarName}",
             'alt' => $githubName
         ]);
         Auth::login($user, true);

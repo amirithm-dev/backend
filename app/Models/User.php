@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasPushSubscriptions;
 
     /**
      * The attributes that are mass assignable.
@@ -53,8 +54,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected static function booted(){
         static::deleting(function ($user) {
-            $user->socialAccounts()->delete();
-            $user->image()->delete();
+            if($user->image){
+                $user->image()->delete();
+            }
         });
     }
 
